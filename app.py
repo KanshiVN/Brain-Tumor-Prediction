@@ -103,4 +103,7 @@ def send_file(filename):
 
 # This part is for local development, not used by Vercel
 if __name__ == '__main__':
-    app.run(debug=True)
+    # Hugging Face provides a PORT environment variable.
+    # Default to 7860 if not set.
+    port = int(os.environ.get('PORT', 7860))
+    app.run(host='0.0.0.0', port=port)
