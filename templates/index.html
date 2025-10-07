@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brain Tumor AI Detector</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0d1117; /* Dark background */
+            color: #e6edf3;
+            /* Animated Aurora Gradient Background */
+            background-image: 
+                radial-gradient(at 20% 25%, hsla(212,89%,60%,0.3) 0px, transparent 50%),
+                radial-gradient(at 80% 20%, hsla(262,89%,60%,0.3) 0px, transparent 50%),
+                radial-gradient(at 20% 80%, hsla(312,89%,60%,0.3) 0px, transparent 50%),
+                radial-gradient(at 80% 85%, hsla(242,89%,60%,0.3) 0px, transparent 50%);
+        }
+        
+        /* --- Animations --- */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.8s ease-out forwards;
+        }
+        
+        /* Animation delays for staggered effect */
+        .delay-1 { animation-delay: 0.2s; }
+        .delay-2 { animation-delay: 0.4s; }
+        .delay-3 { animation-delay: 0.6s; }
+        .delay-4 { animation-delay: 0.8s; }
+
+        /* --- Custom Styles --- */
+        .main-card {
+            /* Glassmorphism Effect */
+            background-color: rgba(22, 27, 34, 0.6);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1.5rem; /* 24px */
+            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.2), 0 8px 10px -6px rgb(0 0 0 / 0.2);
+        }
+
+        .file-drop-area {
+            border: 2px dashed #484f58;
+            transition: all 0.3s ease;
+        }
+
+        .file-drop-area.dragover {
+            border-color: #8b5cf6;
+            background-color: rgba(139, 92, 246, 0.1);
+        }
+
+        .gradient-text {
+            background: linear-gradient(to right, #a78bfa, #f472b6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border-left-color: #ffffff;
+            animation: spin 1s ease infinite;
+        }
+
+        .result-card {
+             background: rgba(139, 92, 246, 0.1);
+        }
+        
+        .confidence-bg {
+             background: linear-gradient(to right, #a855f7, #6366f1);
+        }
+
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-4">
+
+    <div class="container mx-auto max-w-2xl">
+        <main id="main-content" class="main-card p-8 md:p-12 w-full">
+            
+            <!-- Header Section -->
+            <header class="text-center mb-8 fade-in">
+                <!--  -->
+                <div class="inline-block p-3 bg-white/10 rounded-full mb-4">
+                     <svg class="w-8 h-8 text-violet-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.898 20.562L16.25 21.75l-.648-1.188a2.25 2.25 0 01-1.423-1.423L13.25 18.5l1.188-.648a2.25 2.25 0 011.423 1.423l.648 1.188z"/>
+                     </svg>
+                </div>
+                <h1 class="text-3xl md:text-4xl font-extrabold text-slate-50 tracking-tight">AI Brain Tumor Detector</h1>
+                <p class="text-slate-400 mt-3 max-w-md mx-auto">Upload an MRI scan and our deep learning model will analyze it for potential tumors.</p>
+            </header>
+
+            <!-- Upload Form -->
+            <form id="upload-form" action="/" method="post" enctype="multipart/form-data" class="space-y-6 fade-in delay-1">
+                <div id="file-drop-area" class="file-drop-area rounded-lg p-8 text-center cursor-pointer bg-white/5">
+                    <input id="file-upload" name="file" type="file" class="hidden" accept="image/png, image/jpeg, image/jpg">
+                    <label for="file-upload" class="flex flex-col items-center justify-center space-y-3 cursor-pointer">
+                        <svg class="w-12 h-12 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"></path></svg>
+                        <p class="text-slate-400 text-lg"><span class="font-semibold text-violet-400">Click to upload</span> or drag and drop</p>
+                        <p id="file-name" class="text-sm text-slate-500"></p>
+                    </label>
+                </div>
+                <button type="submit" id="submit-btn" class="w-full bg-violet-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-violet-700 focus:outline-none focus:ring-4 focus:ring-violet-400/50 transition-all duration-300 transform hover:scale-105 flex items-center justify-center space-x-2 h-14">
+                    <span id="btn-text">Analyze Image</span>
+                    <div id="spinner" class="spinner hidden"></div>
+                </button>
+            </form>
+            
+            <!-- Error Message Display -->
+            {% if error %}
+            <div class="mt-6 p-4 bg-red-500/10 text-red-300 border-l-4 border-red-500 rounded-r-lg fade-in delay-2" role="alert">
+                <p><strong class="font-bold">Analysis Failed:</strong> {{ error }}</p>
+            </div>
+            {% endif %}
+
+            <!-- Prediction Result -->
+            {% if prediction %}
+            <section class="mt-10 pt-8 border-t border-white/10 fade-in delay-2">
+                <h2 class="text-center text-2xl font-bold text-slate-200 mb-6">Analysis Result</h2>
+                <div class="grid md:grid-cols-5 gap-6 items-center">
+                    <div class="md:col-span-3 text-center md:text-left">
+                        <div class="result-card p-6 rounded-xl border border-white/10">
+                            <p class="text-md text-violet-300/80 mb-1">Predicted Condition:</p>
+                            <p class="gradient-text text-4xl font-extrabold tracking-tight">{{ prediction }}</p>
+                        </div>
+                        <div class="mt-4 bg-white/10 p-6 rounded-xl border border-white/10">
+                            <p class="text-md text-slate-300">Model Confidence:</p>
+                            <div class="w-full bg-slate-700 rounded-full h-2.5 mt-2">
+                                <div class="confidence-bg h-2.5 rounded-full" style="width: {{ confidence }}%"></div>
+                            </div>
+                            <p class="text-right text-lg font-semibold text-slate-200 mt-1">{{ confidence }}%</p>
+                        </div>
+                    </div>
+                    <div class="md:col-span-2 flex justify-center fade-in delay-3">
+                        <img src="{{ url_for('send_file', filename=image_file) }}" alt="Uploaded Brain MRI Scan" class="rounded-lg shadow-lg w-full h-auto object-cover border-4 border-white/20">
+                    </div>
+                </div>
+            </section>
+            {% endif %}
+        </main>
+        <footer class="text-center mt-8 text-slate-500 text-sm fade-in delay-4">
+            <p>This AI is for educational and demonstrational purposes only and is not a substitute for professional medical advice.</p>
+        </footer>
+    </div>
+
+    <script>
+        const fileUpload = document.getElementById('file-upload');
+        const fileNameDisplay = document.getElementById('file-name');
+        const uploadForm = document.getElementById('upload-form');
+        const submitBtn = document.getElementById('submit-btn');
+        const btnText = document.getElementById('btn-text');
+        const spinner = document.getElementById('spinner');
+        const dropArea = document.getElementById('file-drop-area');
+
+        // Show selected file name
+        fileUpload.addEventListener('change', () => {
+            if (fileUpload.files.length > 0) {
+                fileNameDisplay.textContent = fileUpload.files[0].name;
+            } else {
+                fileNameDisplay.textContent = '';
+            }
+        });
+
+        // Show loading spinner on form submission
+        uploadForm.addEventListener('submit', () => {
+            btnText.textContent = "Analyzing...";
+            spinner.classList.remove('hidden');
+            submitBtn.disabled = true;
+            submitBtn.classList.add('cursor-not-allowed', 'bg-violet-500');
+        });
+
+        // Drag and drop functionality
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropArea.addEventListener(eventName, () => dropArea.classList.add('dragover'), false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, () => dropArea.classList.remove('dragover'), false);
+        });
+
+        dropArea.addEventListener('drop', (e) => {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            fileUpload.files = files;
+            // Manually trigger the 'change' event to update the file name display
+            const event = new Event('change');
+            fileUpload.dispatchEvent(event);
+        }, false);
+
+    </script>
+</body>
+</html>
