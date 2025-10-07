@@ -1,5 +1,7 @@
-numpy==1.26.4
-pandas==2.2.1
-tensorflow==2.15.0
-matplotlib==3.9.1
-opencv-python==4.10.0
+tensorflow
+Flask
+gunicorn
+tensorflow
+opencv-python-headless
+numpy
+Pillow
